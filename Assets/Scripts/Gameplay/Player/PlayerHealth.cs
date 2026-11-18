@@ -4,13 +4,14 @@ using UnityEngine;
 
 namespace FightArena.Gameplay.Player
 {
-    public sealed class PlayerHealth : MonoBehaviour
+    public sealed class PlayerHealth : MonoBehaviour, IDamageable
     {
         [SerializeField, Min(1)] private int maxHealth = 100;
 
         private int currentHealth;
         private bool isDead;
 
+        public int InstanceId => gameObject.GetInstanceID();                //获取玩家对象的实例ID
         public int CurrentHealth => currentHealth;
         public int MaxHealth => maxHealth;
         public bool IsDead => isDead;

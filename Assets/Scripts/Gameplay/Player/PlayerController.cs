@@ -8,6 +8,7 @@ namespace FightArena.Gameplay.Player
         [Header("Player Components")]
         [SerializeField] private PlayerInput playerInput;
         [SerializeField] private PlayerMotor playerMotor;
+        [SerializeField] private PlayerWeapon playerWeapon;
         [SerializeField] private PlayerAim playerAim;
         [SerializeField] private PlayerDodge playerDodge;
         [SerializeField] private PlayerHealth playerHealth;
@@ -98,6 +99,11 @@ namespace FightArena.Gameplay.Player
             playerMotor.SetMovementEnabled(true);
             playerMotor.SetMoveIntent(move);
 
+            bool canFire = state == PlayerState.Normal &&
+               !playerHealth.IsDead;
+            playerWeapon.TickWeapon(intent.FireHeld, canFire);
+
+
             animatorBridge.Render(
                 state,
                 playerMotor.MoveSpeed01);
@@ -167,6 +173,7 @@ namespace FightArena.Gameplay.Player
         {
             if (playerInput != null &&
                 playerMotor != null &&
+                playerWeapon != null &&
                 playerAim != null &&
                 playerDodge != null &&
                 playerHealth != null &&
