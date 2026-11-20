@@ -131,3 +131,17 @@ InitTestScene*.unity*
 /Assets/Prefabs/Player/Player.prefab.meta
 /Assets/Scenes/Arena.unity
 /Assets/Scenes/Arena.unity.meta
+
+# Enemy assets with third-party artwork dependencies
+/Assets/Animations/Enemies/MeleeEnemy.controller
+/Assets/Animations/Enemies/MeleeEnemy.controller.meta
+/Assets/Animations/Enemies/RangedEnemy.controller
+/Assets/Animations/Enemies/RangedEnemy.controller.meta
+/Assets/Prefabs/Enemies/MeleeEnemy.prefab
+/Assets/Prefabs/Enemies/MeleeEnemy.prefab.meta
+/Assets/Prefabs/Enemies/RangedEnemy.prefab
+/Assets/Prefabs/Enemies/RangedEnemy.prefab.meta
+
+# Currently unused third-party font
+/Assets/Fonts/
+/Assets/Fonts.meta

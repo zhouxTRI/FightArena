@@ -33,6 +33,7 @@ namespace FightArena.Gameplay.Player
         public bool IsActive => moving || recovering;
         public bool IsRecovering => recovering;
         public bool IsFinished => !moving && !recovering;
+        public float CooldownDuration => cooldown;
         public float CooldownRemaining => cooldownRemaining;
 
         public bool IsInvulnerable

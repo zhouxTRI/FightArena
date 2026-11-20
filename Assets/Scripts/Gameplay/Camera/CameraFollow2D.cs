@@ -22,16 +22,29 @@ namespace FightArena.Gameplay.CameraSystem
         [SerializeField] private Vector2 arenaMin = new Vector2(-24f, -14f);
         [SerializeField] private Vector2 arenaMax = new Vector2(24f, 14f);
 
+        [Header("Trauma")]
+        [SerializeField, Min(0f)] private float traumaDecay = 1.4f;
+        [SerializeField, Min(0f)] private float maxShakeOffset = 0.25f;
+        [SerializeField, Min(0f)] private float maxShakeAngle = 2f;
+
         private Camera targetCamera;
         private Vector2 currentFocus;
         private Vector2 focusVelocity;
         private float initialZ;
+        private Quaternion baseRotation;
+        private float trauma;
+        private float shakeSeedX;
+        private float shakeSeedY;
         private bool initialized;
 
         private void Awake()
         {
             targetCamera = GetComponent<Camera>();
             initialZ = transform.position.z;
+            baseRotation = transform.rotation;
+            int instanceId = GetInstanceID();
+            shakeSeedX = (instanceId & 0xFFFF) * 0.013f;
+            shakeSeedY = ((instanceId >> 16) & 0xFFFF) * 0.017f;
 
             targetCamera.orthographic = true;
             targetCamera.orthographicSize = orthographicSize;
@@ -95,6 +108,18 @@ namespace FightArena.Gameplay.CameraSystem
                 currentFocus.x,
                 currentFocus.y,
                 initialZ);
+
+            ApplyCameraShake();
+        }
+
+        public void AddTrauma(float amount)
+        {
+            if (amount <= 0f)
+            {
+                return;
+            }
+
+            trauma = Mathf.Clamp01(trauma + amount);
         }
 
         private Vector2 ClampToArena(Vector2 desired)
@@ -135,12 +160,61 @@ namespace FightArena.Gameplay.CameraSystem
             return desired;
         }
 
+        private void ApplyCameraShake()
+        {
+            if (Time.timeScale <= 0f)
+            {
+                trauma = 0f;
+                transform.rotation = baseRotation;
+                return;
+            }
+
+            float shake = trauma * trauma;
+
+            if (shake > 0f)
+            {
+                float time = Time.unscaledTime * 18f;
+                float noiseX =
+                    (Mathf.PerlinNoise(shakeSeedX, time) - 0.5f) * 2f;
+                float noiseY =
+                    (Mathf.PerlinNoise(shakeSeedY, time) - 0.5f) * 2f;
+
+                transform.position += new Vector3(
+                    noiseX * maxShakeOffset * shake,
+                    noiseY * maxShakeOffset * shake,
+                    0f);
+
+                transform.rotation = baseRotation * Quaternion.Euler(
+                    0f,
+                    0f,
+                    noiseX * maxShakeAngle * shake);
+            }
+            else
+            {
+                transform.rotation = baseRotation;
+            }
+
+            trauma = Mathf.MoveTowards(
+                trauma,
+                0f,
+                traumaDecay * Time.unscaledDeltaTime);
+        }
+
+        private void OnDisable()
+        {
+            trauma = 0f;
+            transform.rotation = baseRotation;
+        }
+
         private void OnValidate()
         {
             smoothTime = Mathf.Max(0f, smoothTime);
             orthographicSize = Mathf.Max(0.1f, orthographicSize);
             lookAheadFactor = Mathf.Max(0f, lookAheadFactor);
             maxLookAhead = Mathf.Max(0f, maxLookAhead);
+            traumaDecay = Mathf.Max(0f, traumaDecay);
+            maxShakeOffset = Mathf.Max(0f, maxShakeOffset);
+            maxShakeAngle = Mathf.Max(0f, maxShakeAngle);
         }
     }
 }
